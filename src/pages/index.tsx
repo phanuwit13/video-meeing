@@ -19,6 +19,9 @@ export default function Home() {
         onSuccess: (res) => {
           router.push(`/meeting?token=${res.data.token}&room=${roomName}`)
         },
+        onError: () => {
+          alert('Room is duplicate')
+        },
         onSettled: () => {
           onClose()
         },

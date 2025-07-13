@@ -66,7 +66,7 @@ const Participant = ({
       }
     }
   }, [videoTracks])
-  
+
   useEffect(() => {
     const audioTrack = audioTracks[0] as any
     if (audioTrack) {
@@ -101,7 +101,7 @@ const Participant = ({
 }
 
 const MeetingPage = (props: Props) => {
-  const { query } = useRouter()
+  const { query, push } = useRouter()
 
   const [room, setRoom] = useState<Video.Room | null>(null)
   const [participants, setParticipants] = useState<Video.RemoteParticipant[]>(
@@ -120,12 +120,17 @@ const MeetingPage = (props: Props) => {
     if (query.token) {
       Video.connect(query.token.toString(), {
         name: query.room?.toString(),
-      }).then((room) => {
-        setRoom(room)
-        room.on('participantConnected', participantConnected)
-        room.on('participantDisconnected', participantDisconnected)
-        room.participants.forEach(participantConnected)
       })
+        .then((room) => {
+          setRoom(room)
+          room.on('participantConnected', participantConnected)
+          room.on('participantDisconnected', participantDisconnected)
+          room.participants.forEach(participantConnected)
+        })
+        .catch((err) => {
+          alert(err)
+          push('/')
+        })
     }
 
     return () => {
@@ -144,6 +149,7 @@ const MeetingPage = (props: Props) => {
       })
     }
   }, [query.room, query.token])
+
   const remoteParticipants = useMemo(() => {
     const participant = [...participants].pop()
     return (
